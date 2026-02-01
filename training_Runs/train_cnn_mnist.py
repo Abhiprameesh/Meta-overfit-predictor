@@ -6,21 +6,19 @@ from torch.utils.data import DataLoader
 import pandas as pd
 import os
 
-# -----------------------
-# Config
-# -----------------------
+
 # -----------------------
 # Experiment Config
 # -----------------------
 BATCH_SIZE = 64
-NUM_EPOCHS = 50          # change this per run
-LR = 0.05                # change this per run
-USE_SMALL_DATASET = True # change this per run
-USE_DROPOUT = False      # change this per run
+NUM_EPOCHS = 20          # change this per run
+LR = 0.01                # change this per run
+USE_SMALL_DATASET = False # change this per run
+USE_DROPOUT = True      # change this per run
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LOG_DIR = "../logs"
-RUN_NAME = "run_002"     # increment this per run
+RUN_NAME = "run_004"     # increment this per run
 
 
 os.makedirs(LOG_DIR, exist_ok=True)
