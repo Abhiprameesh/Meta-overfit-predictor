@@ -9,12 +9,19 @@ import os
 # -----------------------
 # Config
 # -----------------------
+# -----------------------
+# Experiment Config
+# -----------------------
 BATCH_SIZE = 64
-EPOCHS = 30
-LR = 0.01
+NUM_EPOCHS = 50          # change this per run
+LR = 0.05                # change this per run
+USE_SMALL_DATASET = True # change this per run
+USE_DROPOUT = False      # change this per run
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 LOG_DIR = "../logs"
-RUN_NAME = "run_001"
+RUN_NAME = "run_002"     # increment this per run
+
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -32,6 +39,13 @@ train_dataset = datasets.MNIST(
     transform=transform
 )
 
+from torch.utils.data import Subset
+import random
+
+if USE_SMALL_DATASET:
+    indices = random.sample(range(len(train_dataset)), 3000)
+    train_dataset = Subset(train_dataset, indices)
+
 val_dataset = datasets.MNIST(
     root="../data",
     train=False,
@@ -46,7 +60,7 @@ val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
 # Model
 # -----------------------
 class SimpleCNN(nn.Module):
-    def __init__(self):
+    def __init__(self, use_dropout=False):
         super().__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(1, 32, 3),
@@ -59,6 +73,7 @@ class SimpleCNN(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(64 * 5 * 5, 128),
             nn.ReLU(),
+            nn.Dropout(0.5) if use_dropout else nn.Identity(),
             nn.Linear(128, 10)
         )
 
@@ -67,7 +82,7 @@ class SimpleCNN(nn.Module):
         x = x.view(x.size(0), -1)
         return self.fc(x)
 
-model = SimpleCNN().to(DEVICE)
+model = SimpleCNN(use_dropout=USE_DROPOUT).to(DEVICE)
 
 # -----------------------
 # Training setup
@@ -116,7 +131,7 @@ def run_epoch(loader, training=True):
 # -----------------------
 logs = []
 
-for epoch in range(1, EPOCHS + 1):
+for epoch in range(1, NUM_EPOCHS + 1):
     train_loss, train_acc = run_epoch(train_loader, training=True)
     val_loss, val_acc = run_epoch(val_loader, training=False)
 
