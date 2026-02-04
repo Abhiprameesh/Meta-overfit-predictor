@@ -7,9 +7,7 @@ import pandas as pd
 import os
 
 
-# -----------------------
 # Experiment Config
-# -----------------------
 BATCH_SIZE = 64
 NUM_EPOCHS = 10          # change this per run
 LR = 0.01                # change this per run
@@ -23,9 +21,8 @@ RUN_NAME = "run_008"     # increment this per run
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# -----------------------
 # Dataset
-# -----------------------
+
 transform = transforms.Compose([
     transforms.ToTensor()
 ])
@@ -54,9 +51,8 @@ val_dataset = datasets.MNIST(
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
-# -----------------------
+
 # Model
-# -----------------------
 class SimpleCNN(nn.Module):
     def __init__(self, use_dropout=False):
         super().__init__()
@@ -82,15 +78,13 @@ class SimpleCNN(nn.Module):
 
 model = SimpleCNN(use_dropout=USE_DROPOUT).to(DEVICE)
 
-# -----------------------
+
 # Training setup
-# -----------------------
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=LR)
 
-# -----------------------
+
 # Training utilities
-# -----------------------
 def run_epoch(loader, training=True):
     if training:
         model.train()
@@ -124,9 +118,8 @@ def run_epoch(loader, training=True):
     accuracy = correct / total
     return avg_loss, accuracy
 
-# -----------------------
+
 # Training loop + logging
-# -----------------------
 logs = []
 
 for epoch in range(1, NUM_EPOCHS + 1):
@@ -150,9 +143,7 @@ for epoch in range(1, NUM_EPOCHS + 1):
         f"Val Acc: {val_acc:.4f} | "
         f"Gap: {gap:.4f}"
     )
-
-# -----------------------
+    
 # Save logs
-# -----------------------
 df = pd.DataFrame(logs)
 df.to_csv(f"{LOG_DIR}/{RUN_NAME}.csv", index=False)
